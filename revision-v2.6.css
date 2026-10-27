@@ -1,0 +1,4 @@
+/* Official white blouse/shirt first, supplied reference second. */
+.doctor-photo img:not(.alternate){object-position:50% 3%}
+@media(hover:hover) and (pointer:fine){.doctor-photo:not(.manual):hover .alternate{opacity:1}}
+@media(hover:none),(pointer:coarse){.doctor-photo:not(.manual):hover .alternate{opacity:0}}

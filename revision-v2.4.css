@@ -1,0 +1,8 @@
+/* Four owner corrections, v2.4. Glass study remains separate. */
+.price-panel h3{text-align:center;width:100%}
+.offer h3{font-size:30px}.offer-copy p{font-size:22px;line-height:1.5}.offer-copy{gap:18px;justify-content:flex-start}.offer-copy .offer-bottom{margin-top:0;padding-top:8px}
+.offer-price{min-height:280px}.offer-image{min-height:0;height:100%}
+.official-grid{align-items:start}.official-grid>.copy>.bullet-list{min-height:0;gap:24px;justify-content:flex-start;flex:none}.official .license-panel{align-self:start;padding-bottom:28px}
+.contact-requisites{border-top:1px solid #bbb1a4;margin-top:16px;padding-top:14px}.contact-requisites p{font-size:16px;line-height:1.4;margin:0 0 10px}.contact-requisites p:last-child{margin-bottom:0}.contact-requisites .requisites-name{font-size:18px;font-weight:500}
+@media(min-width:701px) and (max-width:899px){.offer h3{font-size:27px}.offer-copy p{font-size:20px}}
+@media(max-width:700px){.offer h3{font-size:27px}.offer-copy p{font-size:20px;line-height:1.5}.offer-price{min-height:0}.offer-image{height:240px;min-height:0}.official-grid>.copy>.bullet-list{gap:22px}.official .license-panel{padding-bottom:24px}.contact-requisites p{font-size:16px}}
