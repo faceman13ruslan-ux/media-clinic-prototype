@@ -1,0 +1,43 @@
+/* Global accessibility settings; slider-specific behaviour lives in components.css. */
+:root{--a11y-scale: 1; --a11y-leading: 1.6; --base-body: 16px; --base-h1: 34px; --base-h2: 28px; --base-h3: 22px;}
+.skip{top: 0px; transform: translateY(-120%); max-width: calc(100% - 32px);}
+.skip:focus{top: 12px; transform: none;}
+@media (min-width: 768px){:root{--base-body: 18px; --base-h1: 44px; --base-h2: 32px; --base-h3: 24px;}}
+@media (min-width: 1200px){:root{--base-h1: 48px; --base-h2: 36px;}}
+.a11y-custom{--body: calc(var(--base-body) * var(--a11y-scale)); --small: calc(14px * var(--a11y-scale)); --control: calc(16px * var(--a11y-scale)); --name: calc(20px * var(--a11y-scale)); --h1: calc(var(--base-h1) * var(--a11y-scale)); --h2: calc(var(--base-h2) * var(--a11y-scale)); --h3: calc(var(--base-h3) * var(--a11y-scale));}
+[data-a11y-lines="wide"]{--a11y-leading: 1.9;}
+[data-a11y-lines="extra"]{--a11y-leading: 2.2;}
+.a11y-custom body,.a11y-custom p,.a11y-custom .role,.a11y-custom details,.a11y-custom figcaption,.a11y-custom .hours,.a11y-custom .footer-org{line-height: var(--a11y-leading);}
+.a11y-custom :is(p,h1,h2,h3,span,a,button,summary,label,select,input){overflow-wrap: anywhere; min-width: 0px;}
+.a11y-custom .eyebrow,.a11y-custom .warning,.a11y-custom .sitemap-link{font-size: calc(12px * var(--a11y-scale)); white-space: normal;}
+.a11y-custom .hero-bottom a{font-size: var(--body);}
+.a11y-custom .contact p,.a11y-custom label,.a11y-custom .mobile-nav a{font-size: var(--body);}
+.a11y-custom .contact-requisites p,.a11y-custom .greeting p.greeting{font-size: var(--small);}
+.a11y-custom .signature,.a11y-custom .hours{font-size: var(--small);}
+.a11y-custom .button{height: auto; white-space: normal;}
+.a11y-enlarged .hero-figure figcaption,.a11y-enlarged .hours > div{flex-wrap: wrap;}
+.a11y-high-zoom .hero-grid,.a11y-high-zoom .contact,.a11y-high-zoom .footer-bottom{grid-template-columns: minmax(0px, 1fr);}
+.a11y-high-zoom .contact-side{border: 0px; padding-left: 0px;}
+.a11y-high-zoom .hero-figure .hours{min-width: 0px;}
+.a11y-high-zoom .hero-figure figcaption{flex-direction: column;}
+.a11y-high-zoom .contact-actions,.a11y-high-zoom .footer-max{flex-wrap: wrap;}
+.a11y-enlarged .desktop-nav{display: none;}
+.a11y-enlarged .menu-open{display: flex;}
+[data-a11y-theme="light"]{--ink: #000; --muted: #292929; --page: #fff; --surface: #fff; --warm: #fff; --accent: #000; --accent-hover: #333; --line: #555; --on-accent: #fff;}
+[data-a11y-theme="dark"]{--ink: #fff; --muted: #e6e6e6; --page: #111; --surface: #111; --warm: #111; --accent: #fff; --accent-hover: #ddd; --line: #aaa; --on-accent: #111;}
+[data-a11y-theme="cream"]{--ink: #12233d; --muted: #263c59; --page: #fff5d8; --surface: #fff5d8; --warm: #fff5d8; --accent: #12233d; --accent-hover: #263c59; --line: #526278; --on-accent: #fff5d8;}
+html:not([data-a11y-theme="normal"]) .button{color: var(--on-accent); background: var(--accent);}
+html:not([data-a11y-theme="normal"]) .secondary{background: var(--page); color: var(--accent); border-color: var(--accent);}
+html:not([data-a11y-theme="normal"]) :is(dialog,input,select,.skip){color: var(--ink); background: var(--page);}
+html:not([data-a11y-theme="normal"]) .header .icon-button img{background: rgb(255, 255, 255); border-radius: 4px;}
+html:not([data-a11y-theme="normal"]) :is(.brand img,.footer-top img){background: rgb(255, 255, 255); border-radius: 4px;}
+html:not([data-a11y-theme="normal"]) :is(.contact-side,.contact-requisites,.contact-phone){border-color: var(--line);}
+[data-a11y-images="gray"] .content-photo{filter: grayscale(1);}
+[data-a11y-images="hide"] .content-photo{display: none !important;}
+#accessibility-dialog select{display: block; width: 100%; min-height: 48px; padding: var(--s3); border: 1px solid var(--line); border-radius: var(--r-sm); font: inherit; color: var(--ink); background: var(--page);}
+#accessibility-dialog label{margin-top: var(--s4);}
+.linear-choice{display: flex; align-items: flex-start; gap: var(--s3); min-height: 44px;}
+.linear-choice input{width: 24px; height: 24px; flex: 0 0 auto; margin: 4px 0px; accent-color: var(--accent);}
+.a11y-actions{display: flex; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s6);}
+#a11y-status{margin-top: var(--s3);}
+@media (prefers-reduced-motion: reduce){*,::before,::after{transition: none !important; animation: auto ease 0s 1 normal none running none !important; scroll-behavior: auto !important;}}
