@@ -12,7 +12,20 @@ $('#fallback-form').addEventListener('submit',e=>{e.preventDefault();const f=e.c
 $$('[data-page]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();$('#page-title').textContent=a.dataset.page;$('#page-info').textContent='Демонстрация перехода в раздел «'+a.dataset.page+'». Отдельная страница пока не подключена.';openDialog($('#page-dialog'),a);}));
 $('.close-page').addEventListener('click',()=>closeDialog($('#page-dialog')));
 $('#search-open').addEventListener('click',e=>{openDialog($('#search-dialog'),e.currentTarget);$('#search-query').focus();});
-$('#search-query').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase(),out=$('#search-results');out.replaceChildren();if(q.length<2){out.textContent='Введите не менее двух символов.';return;}const sections=$$('main>section,.story-slide').filter(s=>s.textContent.toLowerCase().includes(q));if(!sections.length){out.textContent='Ничего не найдено. Попробуйте другой запрос.';return;}sections.forEach(s=>{const b=document.createElement('button');b.textContent=s.querySelector('h1,h2').textContent;b.addEventListener('click',()=>{dialogTrail.length=0;$('#search-dialog').close();lastTrigger=null;const useDefault=document.dispatchEvent(new CustomEvent('media:reveal-section',{cancelable:true,detail:{id:s.id}}));if(useDefault){s.setAttribute('tabindex','-1');s.focus({preventScroll:true});s.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});}});out.append(b);});});
+// Escape closes the modal even when a search input would consume it to clear text.
+$$('dialog').forEach(d=>d.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeDialog(d)}}));
+let siteIndex;
+$('#search-query').addEventListener('input',async e=>{
+ const q=e.target.value.trim().toLocaleLowerCase('ru'),out=$('#search-results');out.replaceChildren();out.setAttribute('aria-live','polite');
+ if(q.length<2){out.textContent='Введите не менее двух символов.';return;}
+ try{if(!siteIndex)siteIndex=await fetch('search-index.json').then(r=>{if(!r.ok)throw Error();return r.json()});
+ if(e.target.value.trim().toLocaleLowerCase('ru')!==q)return;
+ const matches=siteIndex.filter(x=>x.text.toLocaleLowerCase('ru').includes(q));
+ if(!matches.length){out.textContent='Ничего не найдено. Попробуйте другой запрос.';return;}
+ const status=document.createElement('p');status.textContent='Найдено разделов: '+matches.length;out.append(status);
+ matches.forEach(x=>{const a=document.createElement('a');a.href=x.url;a.textContent=x.title;a.style.display='block';a.style.paddingBlock='12px';out.append(a)});
+ }catch{out.textContent='Поиск недоступен. Откройте карту сайта.';const a=document.createElement('a');a.href='sitemap.html';a.textContent='Карта сайта';out.append(a)}
+});
 // Content is present from first paint. Motion only enhances images; no scroll locking.
 $$('[data-mobile-search]').forEach(b=>b.addEventListener('click',()=>openDialog($('#search-dialog'),b)));
 $$('[data-service-pending]').forEach(b=>b.addEventListener('click',()=>{$('#page-title').textContent=b.dataset.servicePending;$('#page-info').textContent='Официальная ссылка клиники пока не подключена. Сейчас можно связаться по телефону 8 (383) 309-21-21.';openDialog($('#page-dialog'),b);}));
