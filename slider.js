@@ -1,4 +1,4 @@
-/* Intrinsic-height section slider. No transforms, inner scrolling or autoplay. */
+/* Intrinsic-height section slider with accessible autoplay. */
 (()=>{
  const deck=document.querySelector('.story-deck');if(!deck)return;
  const slides=[...deck.querySelectorAll('[data-story-slide]')];
@@ -9,25 +9,33 @@
  const status=deck.querySelector('[data-story-status]');
  let active=0,touch=null,linear=false;
  const play=deck.querySelector('[data-story-play]'), reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ const hint=document.createElement('p');hint.className='story-autoplay-hint container';hint.setAttribute('role','status');deck.insertBefore(hint,viewport);
  let enabled=!reduced.matches, visible=false, hovered=false, timer=null;
  const paintPlay=()=>{play.textContent=enabled?'Пауза':'Воспроизвести';play.setAttribute('aria-pressed',String(!enabled));};
  function schedule(){
   clearTimeout(timer);timer=null;
   const rect=slides[active].getBoundingClientRect();
-  // Never replace text that cannot fit within the available viewport.
-  if(!enabled||!visible||linear||document.hidden||hovered||deck.contains(document.activeElement)||document.querySelector('dialog[open]')||rect.height>innerHeight-headerHeight())return;
+  let reason='';
+  if(enabled&&visible&&!linear&&!document.hidden){
+   if(document.querySelector('dialog[open]'))reason='Автоперелистывание приостановлено, пока открыто окно.';
+   else if(hovered||deck.contains(document.activeElement))reason='Автоперелистывание продолжится, когда курсор и фокус будут вне слайдера.';
+   else if(rect.height>innerHeight-headerHeight())reason='Автоперелистывание приостановлено: слайд не помещается по высоте экрана.';
+  }
+  if(hint.textContent!==reason)hint.textContent=reason;
+  if(!enabled||!visible||linear||document.hidden||reason)return;
   timer=setTimeout(()=>{select((active+1)%slides.length,{hash:false,announce:false});schedule()},4000);
  }
  function stop(){if(enabled){enabled=false;paintPlay()}schedule()}
- play.addEventListener('click',e=>{e.stopPropagation();enabled=!enabled;paintPlay();schedule()});
+ play.addEventListener('click',e=>{e.stopPropagation();enabled=!enabled;paintPlay();if(e.detail>0)play.blur();schedule()});
  deck.addEventListener('pointerdown',e=>{if(!e.target.closest('[data-story-play]'))stop()});
  deck.addEventListener('keydown',e=>{if(!e.target.closest('[data-story-play]'))stop()});
  deck.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovered=true;schedule()}});
  deck.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovered=false;schedule()}});
  deck.addEventListener('focusin',schedule);deck.addEventListener('focusout',()=>setTimeout(schedule,0));
- document.addEventListener('visibilitychange',schedule);window.addEventListener('resize',schedule);
+ document.addEventListener('visibilitychange',schedule);window.addEventListener('resize',schedule);window.addEventListener('scroll',schedule,{passive:true});
  new MutationObserver(schedule).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['open']});
  new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;schedule()},{threshold:0.1}).observe(deck);
+ new ResizeObserver(schedule).observe(viewport);
  reduced.addEventListener('change',e=>{if(e.matches)stop()});paintPlay();
  const indexFor=id=>slides.findIndex(s=>s.id===id||s.querySelector('[id="'+CSS.escape(id)+'"]'));
  const headerHeight=()=>document.querySelector('header.header').getBoundingClientRect().height;
@@ -100,7 +108,7 @@
  deck.dataset.enhanced='true';deck.setAttribute('role','region');
  deck.querySelector('.story-toolbar').hidden=false;deck.querySelector('.story-bottom').hidden=false;
  deck.querySelector('.story-tabs').setAttribute('role','tablist');
- document.addEventListener('media:accessibility',e=>{linear=!!e.detail.linear;deck.dataset.linear=String(linear);deck.querySelector('.story-tabs').setAttribute('role',linear?'navigation':'tablist');deck.querySelector('.story-bottom').hidden=linear;deck.querySelector('[data-story-controls=top]').hidden=linear;select(active,{hash:false,announce:false});});
+ document.addEventListener('media:accessibility',e=>{linear=!!e.detail.linear;deck.dataset.linear=String(linear);deck.querySelector('.story-tabs').setAttribute('role',linear?'navigation':'tablist');deck.querySelector('.story-bottom').hidden=linear;deck.querySelector('[data-story-controls=top]').hidden=linear;select(active,{hash:false,announce:false});schedule();});
  const initial=indexFor(location.hash.slice(1));
  select(initial>=0?initial:0,{hash:false,scroll:initial>=0,announce:false});
 })();
