@@ -8,6 +8,27 @@
  const next=[...deck.querySelectorAll('[data-story-next]')];
  const status=deck.querySelector('[data-story-status]');
  let active=0,touch=null,linear=false;
+ const play=deck.querySelector('[data-story-play]'), reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ let enabled=!reduced.matches, visible=false, hovered=false, timer=null;
+ const paintPlay=()=>{play.textContent=enabled?'Пауза':'Воспроизвести';play.setAttribute('aria-pressed',String(!enabled));};
+ function schedule(){
+  clearTimeout(timer);timer=null;
+  const rect=slides[active].getBoundingClientRect();
+  // Never replace text that cannot fit within the available viewport.
+  if(!enabled||!visible||linear||document.hidden||hovered||deck.contains(document.activeElement)||document.querySelector('dialog[open]')||rect.height>innerHeight-headerHeight())return;
+  timer=setTimeout(()=>{select((active+1)%slides.length,{hash:false,announce:false});schedule()},4000);
+ }
+ function stop(){if(enabled){enabled=false;paintPlay()}schedule()}
+ play.addEventListener('click',e=>{e.stopPropagation();enabled=!enabled;paintPlay();schedule()});
+ deck.addEventListener('pointerdown',e=>{if(!e.target.closest('[data-story-play]'))stop()});
+ deck.addEventListener('keydown',e=>{if(!e.target.closest('[data-story-play]'))stop()});
+ deck.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'){hovered=true;schedule()}});
+ deck.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'){hovered=false;schedule()}});
+ deck.addEventListener('focusin',schedule);deck.addEventListener('focusout',()=>setTimeout(schedule,0));
+ document.addEventListener('visibilitychange',schedule);window.addEventListener('resize',schedule);
+ new MutationObserver(schedule).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['open']});
+ new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;schedule()},{threshold:0.1}).observe(deck);
+ reduced.addEventListener('change',e=>{if(e.matches)stop()});paintPlay();
  const indexFor=id=>slides.findIndex(s=>s.id===id||s.querySelector('[id="'+CSS.escape(id)+'"]'));
  const headerHeight=()=>document.querySelector('header.header').getBoundingClientRect().height;
  const scrollToDeck=()=>window.scrollTo({top:Math.max(0,deck.getBoundingClientRect().top+window.scrollY-headerHeight()-12),behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
@@ -73,7 +94,7 @@
  },{passive:true});
  viewport.addEventListener('touchend',()=>{
   const gesture=touch;touch=null;
-  if(gesture?.axis==='x'&&Math.abs(gesture.dx)>=60&&Math.abs(gesture.dx)>Math.abs(gesture.dy)*1.4)select(active+(gesture.dx<0?1:-1),{scroll:true});
+  if(gesture?.axis==='x'&&Math.abs(gesture.dx)>=60&&Math.abs(gesture.dx)>Math.abs(gesture.dy)*1.4){stop();select(active+(gesture.dx<0?1:-1),{scroll:true});}
  },{passive:true});
  viewport.addEventListener('touchcancel',()=>touch=null,{passive:true});
  deck.dataset.enhanced='true';deck.setAttribute('role','region');
